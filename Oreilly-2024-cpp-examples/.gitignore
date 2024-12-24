@@ -1,0 +1,4 @@
+# ignore all .a files
+*.a
+# Make sure the build folder exists
+build/*

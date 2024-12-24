@@ -58,10 +58,40 @@ Programs: /media/jvijay20/Ubuntu/Oreilly/Oreilly-2024-cpp-examples
 * In General, only make PUBLIC what you must – By default Keep everything PRIVATE 
 * Keep All Member variables PRIVATE – ALWAYS – Provide Public Getter/Setter methods for those variables 
 
-     
-
-     
-
+## Splitting Classes into multiple files
+* So far, our examples have involved classes that are entirely "Defined" in just 1 file.
+* so basically combines both the DECLARATION and DEFINITION of the member functions of the class into 1 file.
+* But in Production code, classes will usually be split into 2 files,  there are simple ground rules to doing so.
  
+ ### How are the Definition and Declaration different?
+* Declaration of member functions - It is the signature.
+    * It includes constructor.
+    * It is placed in header file (.h).
+    * It has no implementation.
+* Definition of member functions - It is body.
+    * It is placed in .cpp files.
+    * It is source of the function declared.
+    * The .cpp file must include .h file but not vice versa.
+    * In .cpp file, refer to the functions of class using scope resolution operator.
+    | for e.g for class ComplexNumber `ComplexNumber::ComplexNumber()` `ComplexNumber::ComplexNumber(double r, double c)`
+    * Now any other file seeking to use your class should only INCLUDE #.hFile.
+    * BTW, when you combine the definition and Declaration, the function become **INLINE**.
+        * Theoritically, this could speed up the call to the function, especially if its a short one.
+        * Every call to an inline function will be replaced by its body (by C++ Compiler).
+        * we can make the function as INLINE function, using `inline` keyword if you wish.
+    * Classes can have dependencies across them - and this can get complicated.
+    * If class `A` references class `B` somewhere in some function signature, `A` has a dependency on `B`.
+    * Typically you will just "Declare class `B` inside the header for class `A`". You will not include the header file for it.
+    * This is a Forward Declaration.
+    * If you have a Reference or Pointer to another class in your code, then you can Forward Declare.
+    * If you have an Object of another class instantiated in your code, then you should #include the corresponding .h file.
 
- 
+## Setup a multi-file project with a dependency across objects
+* Class 1: Complex number class (Cartesian coordinates)
+    ```z = x + iy``` real(x), img(y)
+* Class 2: Complex number class (Polar coordinates)
+    ```z = r(cos t + i sin t)```, modulus(r), argument(t)
+### Forward Declaration
+* This is an important point - <span style="color:red"> Remember to add any forward declarations </span> <span style="color:blue">for types that are not #Included in your file </span>
+* Think of this as a <span style="color:red">Placeholder class</span> compiler does not complain, you know that <span style="color:blue">
+Real Class is going to be defined and declared elsewhere. </span>

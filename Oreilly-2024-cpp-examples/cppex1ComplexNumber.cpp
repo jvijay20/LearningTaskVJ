@@ -9,6 +9,12 @@ class ComplexNumber
     {
         std::cout << "No arg-constructor called"<< std::endl;
     }
+    ComplexNumber(const ComplexNumber &c)
+    {
+        realPart = c.realPart;
+        complexPart = c.complexPart;
+        std::cout << "Copy constructor called"<< std::endl; 
+    }
     void setMemberVariables(float r, float c)
     {
         realPart = r;
@@ -37,5 +43,7 @@ int main()
     d.setMemberVariables(5.3, 3.5);
     std::cout << "Complex part = " << d.getComplexPart() << std::endl;
     d.print();
+    ComplexNumber e = c;
+    e.print();
     return 0;
 }
