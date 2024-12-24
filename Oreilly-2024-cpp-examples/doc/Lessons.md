@@ -95,3 +95,47 @@ Programs: /media/jvijay20/Ubuntu/Oreilly/Oreilly-2024-cpp-examples
 * This is an important point - <span style="color:red"> Remember to add any forward declarations </span> <span style="color:blue">for types that are not #Included in your file </span>
 * Think of this as a <span style="color:red">Placeholder class</span> compiler does not complain, you know that <span style="color:blue">
 Real Class is going to be defined and declared elsewhere. </span>
+
+## Dynamic Memory Allocation (DMA)
+* We all have struggled with DMA in C
+
+### Flashback to C
+* `void *malloc (int num);` This a special function provided by the `stdlib.h` library in C to allow developers to manage memory.
+    * A <span style="color:red">RETURN VALUE  `void*` </span> pointer indicates that the pointer can be to <span style="color:red">  ANY DATA TYPE. </span>
+    * This can be <span style="color:red">  CAST </span>to the <span style="color:red">  TYPE OF POINTER </span>we are allocating memory for.
+    * <span style="color:red">  NUMBER OF BYTES `(int num)` </span>, this specifies <span style="color:red">  HOW MUCH MEMORY </span> in bytes, we want to allocated.
+    * `int* int_ptr = (int *)malloc(sizeof(int));`
+    * `(int *)` here we allocate memory for an integer pointer, cast the return value to an <span style="color:red">  int* </span>.
+    * `sizeof` can be used with <span style="color:red">  PRIMITIVES, STRUCTS and CONSTANTS </span> to figure out how much space each of them occupy.
+* If you, as a developer allocate memory, then its your responsibility to <span style="color:red"> free it as well. </span> `void free (void *address);`
+    * `free` returns nothing, simply frees up that portion of the memory for use by other portions of the program
+    * It takes in an<span style="color:red">  void* </span>which means you can pass in a pointer to any data type.
+* ```
+    int* int_ptr = (int *)malloc(sizeof(int));
+    int a = 34;
+    ...
+    free(int_ptr); // This frees the memory space that int_ptr used
+    free(a); // This is wrong. You cannot free the integer a, you have not allocated memory for it.
+    ```
+## Stack memory and Heap memory
+* In C there are 2 types of memory available to use.
+
+|Stack Memory | Heap Memory |
+|:---|:---|
+| The CPU Manages the stack memory. <br>The <span style="color:red"> CPU</span> is responsible for allocating space in it and freeing up space as well| This portion of memory is managed by the <span style="color:red">DEVELOPER</span> writing code in C|
+| Developers do not allocate or de-allocate space on the stack| The developer is responsible for allocating and freeing memory on the heap.|
+|Memory allocated for variables which we just declare and use is on the STACK|Memory for pointers is allocated in the Heap region.|
+|E.g<br>int a;<br>char c;<br>float f;<br>struct point3D;<br> <ul><li>The memory for all variables declared in this fashion are put on the stack managed by CPU.</li><li>It is called STACK because it behaves like a stack.</li>The stack grows and shrinks as functions push and pop local variables.<li>Newer variables go to the top of the stack.</li><li>Variables in the stack are managed by C <span style="color:red">AUTOMATICALLY.</li><li>Stack variables only exist so long as the function which created them is being executed.</span></li></ul>|<ul><li>The heap region of your computer's memory is <span style="color:red">not managed AUTOMATICALLY</span></li><li>The developer is responsible for managing memory using functions like `malloc()` and `free()`</li><li>If you fail to deallocate memory used on a Heap it results in a <span style="color:red">MEMORY LEAK.</span></li><li>Other ways to allocate memory `void *calloc(int num, int size)`</li><li>This is a special function which is useful to allocate memory for <span style="color:red">ARRAYS</span></li><li>This will allocate memory for NUM elements where each element is of SIZE bytes.</li><li>Say you have to allocate memory for a 100 integer elements in an ARRAY.<br>`int* arr = (int *)malloc(100 * sizeof(int));`<br>Is equivalent to:<br>`int * arr = (int *)calloc(100, sizeof(int));`</li><li>Resizing a block of memory<br>If you have already allocated some memory for an array, later you realise that you want to store additional elements.<br>`int* arr = (int *)malloc(100 * sizeof(int));`<br>Reallocation with increased size<br>`arr = (int *)realloc(arr, 200 * sizeof(int));`<br>The re-allocated memory block will start at the same address as the one originally allocated.<br>It will try to extend the block of memory from the end - which means <span style="color:red">ORIGINAL ELEMENTS</span> from the array will be <span style="color:red">PRESERVED.</span></li><li>What if memory is not available?<br>Each of these functions to allocate memory <span style="color:red">MALLOC(), CALLOC() and REALLOC()</span> will return a NULL POINTER if the memory is not avaialble.</li></ul>|
+|Fast access.|Access is slower.|
+|Space managed automatically and efficiently - does not get fragmented.|Managed by the developer and can get fragmented.|
+|Variables are in the scope of the function declared..|Variables can be accessed anywhere in the program.(global access)|
+|Smaller in size - has size limits.|Larger- typically limited by the memory on your computer.|
+
+* We also just learnt about Objects, Classes, Constructors (which instantiates the onbject) and Destructors (which clean up the object before it ends).
+* C++ Recap:
+
+| Keywords | Summary |
+|:--- |:--- |
+| Classes |<ul><li>They are structs that contain functions</li><li>Often some variables and functions just make sense grouped together.</li><li>Some of these variables and functions might be interesting to the rest of the program, and these should be PUBLIC.<li>Others might be internal plumbing, and these should be PRIVATE.</li><li>This group of variables and functions is effectively a new, USER-DEFINED, TYPE.</li><li>Anyone can create a variable of this type.</li><li>Such a variable might require some intialisation and once its done, some clean-up</li><li>And coolest of all, other types can "Build on" this type.</li></ul>|
+<li></li>
+<span style="color:red">  void* </span>
