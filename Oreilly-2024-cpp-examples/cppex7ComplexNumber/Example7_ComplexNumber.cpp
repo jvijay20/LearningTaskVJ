@@ -11,6 +11,10 @@ ComplexNumber::ComplexNumber(const ComplexNumber &c)
     complexPart = c.complexPart;
     std::cout << "Copy constructor called"<< std::endl; 
 }
+ComplexNumber::ComplexNumber(const float &real, const float &complex): realPart(real), complexPart(complex)
+{
+    std::cout << "Parameterized constructor called" << std::endl;
+};
 void ComplexNumber::setMemberVariables(float r, float c)
 {
     realPart = r;

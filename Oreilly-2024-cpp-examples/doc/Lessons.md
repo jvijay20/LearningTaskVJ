@@ -137,5 +137,110 @@ Real Class is going to be defined and declared elsewhere. </span>
 | Keywords | Summary |
 |:--- |:--- |
 | Classes |<ul><li>They are structs that contain functions</li><li>Often some variables and functions just make sense grouped together.</li><li>Some of these variables and functions might be interesting to the rest of the program, and these should be PUBLIC.<li>Others might be internal plumbing, and these should be PRIVATE.</li><li>This group of variables and functions is effectively a new, USER-DEFINED, TYPE.</li><li>Anyone can create a variable of this type.</li><li>Such a variable might require some intialisation and once its done, some clean-up</li><li>And coolest of all, other types can "Build on" this type.</li></ul>|
+
+## Dynamic Memory Allocation
+Remember 5 Rules:
+* Never use `malloc/free` Again. Never.
+* Use `new/delete` for single variables of all types.
+* Use `new[]/delete[]` for array variables of all types.
+* Corollary of rules 2 and rule3: Never mix `new/delete` and `new[]/delete[]`.
+* Cleanup all pointer member variables in your destructor.
+
+## Stop using malloc/free
+__Rule#4__: Corollary of rules 2 and rule3: Never mix `new/delete` and `new[]/delete[]`.
+* Anything you allocate + construct using <span style="color:red">new</span>, clean up using <span style="color:red">delete</span>.
+* Anything you allocate + construct using <span style="color:red">new[]</span>, clean up using <span style="color:red">delete[]</span>.
+* Destructos are crucial when your class has pointers or file handles among its member variables. In such cases, not freeing memory or closing files can lead to serious bugs - and memory and resource leaks.
+
+## Stop using malloc/free
+__Rule#1:__ Never use `malloc/free` again. Ever.
+Why? Because `malloc/free` only assign memory. They don't call constructors and destructors.
+Using them in C++ will have terrible terrible consequences.
+
+### How this works
+```
+    ComplexNumber* cDynamic = (ComplexNumber*)malloc(sizeof(ComplexNumber));
+    cout << "Printing out dynamically allocated object" << endl;
+    cDynamic->print();
+
+    free(cDynamic);
+    cout <<"Okey-dokey! All done!" << endl;
+```
+* We run this code, and certain that no constructor is called.
+* But in C++, we have cout statement to know which version of constructor has been called where as in malloc we are not having printf statement.
+* Also we have some garbage values and does not intialise with constructor values.
+* Rule#2: Use `new/delete` for single variables of all types.
+* Anytime you need to create a single variable of a pointer type, just `new` to both `allocate and construct` the variable.
+* You can use this with simple types (int/float etc) as well as object types.
+```
+    float* floatDynamic = new float(23.3);
+    cout <<"Dynamically assigned float has value" = << *floatDynamic << endl;
+    delete floatDynamic;
+```
+* You can pass in arguments  to the constructor when instantiating the pointer variables.
+```
+    ComplexNumber* cDynamic = new ComplexNumber(10,15);
+    cout << "Printing out dynamically allocated object" << endl;
+    cDynamic->print(); // This prints out all the member variables of the cDynamic.
+    delete cDynamic;
+```
+* Rule#: Use `new[]/delete[]` for array variables of all types.
+* Anything you allocate + construct using `new[]`, clean up using `delete[]`
+* `new[]` will first allocate memory for the array and then call the default constructor for each array element. It will track array lenght too.
+* `delete[]` will first call the destructor for each of array element, and deallocate the memory.
+```
+    ComplexNumber* cDynamic = new ComplexNumber[10];
+    for(int i = 0; i<10; i++)
+    {
+        cout << "Printing out dynamically allocated object" << i<< endl;
+        cDynamic[i].print(); // Notice how we use the DOT operator, not -> to refer to an individual element of this array.
+    }
+    delete cDynamic;
+```
+* Rule#4: Corollary of rules 2 and rule3: Never mix `new/delete` and `new[]/delete[]`.
+
+## The Placement "new" operator
+* This is a variation of `new`, which that ensures that an object resides at a specific memory location.
+* Placement new takes in the memory location as a parameter.
+* If you use placement `new`, you have to explicitly call the destructor.
+* First setup a memory area using sizeof.
+```
+    int main()
+    {
+        char memoryBuffer[sizeof(ComplexNumber)]; //First setup a memory area using sizeof.
+        // memoryBuffer holds the address of the object.
+        void *place = (void*)memoryBuffer; //First setup a memory area using sizeof.
+        // place is the variable that assigns the address which is void*
+
+        ComplexNumber * cPlacedNew = new(place) ComplexNumber(10,5);
+        cout << "Printing out dynamically allocated object that used placement new" << endl;
+        cPlacedNew->~ComplexNumber();
+        cout <<"Okey-dokey! All done" <<endl;
+    }
+```
+* Dont use placement new under normal circumstances unless you absolutely have to (e.g in hardware applications).
+
+## Understand "this" operator
+* What is class?. A class is a struct that contains functions in addition to the data. Those functions will act on data, which forms a logical unit.
+* What is object? A variable of the class is called an object (or instance of the class). 
+* A class is the template or blueprint whereas the object is actual house or instance.
+* Data items inside a class are called <span style="color:red">Member Variables</span> and functions inside a class are called <span style="color:red">Methods or Member Functions</span>.
+* Every object has its own <span style="color:red">copies of the member variables </span>and the member functions of that object operate on those copies.
+* Each object has a special pointer called `this`, which points to itself.
+* `this` can be used inside any member function of an object to refer to itself, as if that object were any other variable.
+* `this` comes to existence as soon as the object is created, stays in existence until the object is destructed.
+```
+    // Lets assume this member functions is part of Class ComplexNumber
+    void printThis()
+    {
+        cout << "The address of the object is:" << this << endl; //holds address of the current object
+        cout << "real part is: " << this->realPart << "imaginary part is: " << this->complexPart << endl; // access the varibles of current object.
+    }
+```
+* The below code should actually print out the exact same address as the variable.
+```
+    cPlacedNew->printThis();
+    cout << "Lets see if the address of our variables matches the address of `this`" << cPlacedNew << endl;
+```
 <li></li>
 <span style="color:red">  void* </span>

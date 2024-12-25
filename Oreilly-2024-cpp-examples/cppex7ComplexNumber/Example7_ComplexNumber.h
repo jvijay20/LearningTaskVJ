@@ -7,6 +7,7 @@ class ComplexNumber
     public:
     ComplexNumber();
     ComplexNumber(const ComplexNumber &c);
+    ComplexNumber(const float &real, const float &complex);
     void setMemberVariables(float r, float c);
     float getRealPart();
     float getComplexPart();

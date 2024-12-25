@@ -24,5 +24,8 @@ int main()
     p.setMemberVariables(5, 3.14);
     ComplexNumber f = addTwoComplexNumbers(c, p);
     f.print();
+    ComplexNumber *cDynamic = new ComplexNumber(10, 15);
+    cDynamic->print();
+    delete cDynamic;
     return 0;
 }
