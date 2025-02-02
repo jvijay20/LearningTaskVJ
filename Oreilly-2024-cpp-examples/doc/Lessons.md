@@ -518,7 +518,158 @@ Wrong way of initialisation
 * `y = 10;` if we try to modify like this, it throws error saying read-only variable is not assignable y  =10; it is protected in c++ compiler as per our semantics.
 
 * Example32: Understand difference between `const char *` and `char * const`
-* 
+* `char *`:
+* ![Address to char variable](refs/addressToChar.png)
+* There are 2 portions in this `char *`: 
+  * The <span style="color:red">address</span> this pointer points to i.e the `*`
+  * The <span style="color:red">CHARACTERS</span> in that address location, i.e `char`
+* `const` could apply to either, both or none of these.
+```
+    char firstName[] = "Vijaya";
+    char lastName[] = "Bharathi";
+    char *p1 = firstName; // non-const pointer, non-const data
+    cout << "Initial value of p1: " << p1 << endl;
+    p1[0] = 'Z';
+    cout << "Value of p1 after changing data: " << p1 << endl;
+    p1 = lastName; // can change what is pointed to
+    cout << "Value of p1 after changing what it points to: " << p1 << endl;
+```
+* `const char *`: <span style="color:red"> const applies to the characters alone</span>
+```
+    char firstName[] = "Vijaya";
+    char lastName[] = "Bharathi";
+    const char *p2 = firstName; // non-const pointer, const data
+    cout << "Initial value of p1: " << p1 << endl;
+    // p2[0] = 'Z'; // can NOT change the data
+    cout << "Value of p2 after changing data: " << p2 << endl;
+    p2 = lastName; // can change what is pointed to
+    cout << "Value of p2 after changing what it points to: " << p2 << endl;
+```
+* We will get error for `p2[0] = 'Z';`: read-only variable is not assignable. So we cant change the data
 
+* `char * const`: <span style="color:red"> const applies to the address alone</span>
+```
+    char firstName[] = "Vijaya";
+    char lastName[] = "Bharathi";
+    char * const p3 = firstName; // const pointer, non-const data
+    cout << "Initial value of p3: " << p3 << endl;
+    p3[0] = 'Z'; // can change the data
+    cout << "Value of p3 after changing data: " << p3 << endl;
+    // p3 = lastName; // can NOT change what is pointed to
+    cout << "Value of p3 after changing what it points to: " << p3 << endl;
+```
+* We will get error for `p3 = lastName`: read-only variable is not assignable. So we cant change the data
+
+* `const char * const`: <span style="color:red"> const applies to both address and characters</span>. You can't change anything about such a variable.
+```
+    char firstName[] = "Vijaya";
+    char lastName[] = "Bharathi";
+    const char * const p4 = firstName; // non-const pointer, non-const data
+    cout << "Initial value of p4: " << p3 << endl;
+    // p4[0] = 'Z'; // can NOT change the data
+    cout << "Value of p4 after changing data: " << p4 << endl;
+    // p4 = lastName; // can NOT change what is pointed to
+    cout << "Value of p4 after changing what it points to: " << p4 << endl;
+```
+* We will get error for `p4[0] = 'Z'; AND p4 = lastName`: read-only variable is not assignable. So we cant change the data
+
+* Example 33: Marking a member function of a class `const`
+  * A member function of an object can be marked `const`, which means that it will not change any member variable of that object.
+  * A member function of an object can be marked `const`, can not call any other member function that is not marked `const`.
+```
+    class Student
+    {
+    private:
+        string studentName;
+    public:
+        Student(const char* name) : studentName(name)
+        {
+            cout << "Initialised string to:" << studentName << endl;
+        }
+        void print() const
+        {
+            cout << "StudentName:" << studentName << endl;
+            // This member function is marked const, so it can NOT modify an member data!
+            // studentName = string("Vijay");
+        }
+    }
+```
+  * `studentName = string("Vijay");` - throws error: no viable overloaded '='
+* Example 34: Marking a member variable of a class `mutable`
+  * A member function of an object can be marked `const`, which means that it will not change any member variable of that object.
+  * But a member function of an object can be marked `const`, can still modify any member variable marked `mutable`.
+```
+    class Student
+    {
+    private:
+        mutable string studentName;
+    public:
+        Student(const char* name) : studentName(name)
+        {
+            cout << "Initialised string to:" << studentName << endl;
+        }
+        void print() const
+        {
+            cout << "StudentName:" << studentName << endl;
+            // This member function is marked const, so it can NOT modify an member data -
+            // UNLESS that member data is marked mutable.
+            studentName = string("Vijay");
+            cout << "btw now StudentName:" << studentName << endl;
+        }
+    }
+```
+
+* Example 35: Overloading a member function of a class purely on `const`
+  * A member function of an object can be marked `const`, which means that it will not change any member variable of that object.
+  * A member function of an object can be marked `const`, can not call any other member function that is not marked `const`.
+  * To get around this, C++ allows member functions to be overloaded purely on `const`
+```
+    class Student
+    {
+    private:
+        string studentName;
+    public:
+        void print() const // with const qualifier
+        {
+            cout << "StudentName:" << studentName << endl;
+            // This member function is marked const, so it can NOT modify an member data!
+            // This can NOT call non-const method
+            // changeStudentName();
+        }
+        void print() // without const qualifier
+        {
+            cout << "StudentName:" << studentName << endl;
+            // This member function is NOT marked const, so it can call non-const method
+            changeStudentName();
+        }
+        void changeStudentName()
+        {
+            studentName = string("Vijay");
+        }
+```
+* When will the const version be called vs the non-const version?
+```
+    const Student const_s; // const object of class
+    Student non_const_s; // const object of class
+    const_s.print() // Calls the const version
+    non_const_s.print() // Calls the non const version of overloaded print version
+```
+* Example 36: Getting rid of constness using `const_cast`
+```
+    const char name[50] = "Vijay"
+    // Create a const Student object
+    const Student studentOne(name);
+
+    // Create a non-const Student& object
+    // and assign const Student object - Compiler error!
+    Student& StudentTwo = studentOne;
+
+    // Create a non-const Student& object but 
+    // and assing const Student object - but with const_cast!
+    Student& StudentThree = const_cast<Student &>(studentOne);
+```
+* const_cast is the first C++ cast we are seeing - It helps get rid of constness if for some reason we need to
+
+* Example 37:
 <li></li>
 <span style="color:red">  void* </span>
