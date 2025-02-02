@@ -242,5 +242,283 @@ Using them in C++ will have terrible terrible consequences.
     cPlacedNew->printThis();
     cout << "Lets see if the address of our variables matches the address of `this`" << cPlacedNew << endl;
 ```
+
+## C++ sting class
+* There is a `string` class that basically does everything you need.
+* <span style="color:red">C++ strings are different from C strings</span> - Not delimited by `\0`, but you can easily convert between C `char*` and C++ `string`.
+* You can <span style="color:red">create, concatenate, manipulate and compare</span> strings very easily indeed.
+* Aside: C++ also has 2 byte char, called `wchar_t` to hold non-ascii characters (Non-english languages, for instance).
+
+## Create, print and concatenate C++ strings
+```
+    // Example 14:
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    int main()
+    {
+        string firstName("Vijay);
+        string lastName = "Bharathi";
+        string fullName = firstName+lastName;
+        cout << "First Name = " << firstName << endl;
+        cout << "Last Name = " << lastName << endl;
+        cout << "Full Name = " << fullName << endl;
+    }
+```
+* Always include <span style="color:red">#include <string></span>.
+* Example shows different way of initialisation of strings.
+* concatenate uisng plus operator (overloading).
+
+## Input Strings, including Multiline strings
+```
+    // Example 15:
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    int main()
+    {
+        string firstName, lastName, fullName;
+        cout << "Enter First Name: " << endl;
+        cin >> firstName;
+        cout << "Enter Last Name << endl;
+        cin >> lastName;
+        cout << "Full Name = " << firstName + lastName << endl;
+        string userInput;
+        cout << "Enter your address: "<< endl;
+        cout << "Press ~ when done." <<endl;
+        getline(cin, userInput, '~'); //reads multiple lines
+        cout << "Address: "<< endl;
+        cout << userInput << endl;
+    }
+```
+* Input multiple string lines using `cin` , `getline` .
+* Use `getline`  to include <span style="color:red">strings with spaces</span>.
+
+## Carry-out common string operations
+// Example16:
+* To calculate the <span style="color:red">LENGTH</span> of a string, use `string::size()`
+* Scope resolution operator `::` signifies the function is member function of class `string`
+* To calculate LENGTH use for e.g `fullName.size()`
+* To find a <span style="color:red">SUBSTRING</span> of a string use, `string::substr()`
+    ```
+    string subString = firstName.substr(0,3); // this includes 3 character starting from position 0
+    // 0 - refers starting index of character and 3 - refers length of substring.
+    ```
+
+### Modifying strings
+* To <span style="color:red">ERASE</span> part of a string use `string::erase()`
+    ```
+    string subString = firstName.erase(0,3);
+    // 0 - refers starting index of character and 3 - refers length of substring to be erased.
+    ```
+* To <span style="color:red">INSERT</span> one string into another, use `string::insert()`
+    ```
+    string subString = "keywordToInsert";
+    firstName.insert(0,subString);
+    // 0 - refers starting index where we want to insert and subString - refers to substring to be inserted.
+    ```
+* To <span style="color:red">FIND</span> one string inside, use `string::find()`
+* In C++, unsigned int has an alias, it is reasonably intuitive way of making clear that the return value from this function is a position.
+    ```
+    size_t positionOfFirstName = fullName.find(firstName);
+    // returns starting index, If found, Else, `string::npos`
+    ```
+* `string::npos` is a special value, defined inside the string class, to be precise, its a `const static` member.
+* Some other functions to try `fullName.replace(positionOfFirstName, firstName.length(), ""); //removes firstName with empty string (deleting)
+
+## Comparing strings
+// Example 17:
+* The operators `<`,`>`, `=` etc have been overloaded, so that they can compare `string` objects.
+    ```
+        string firstString;
+        string secondString;
+        while(true)
+        {
+            cout << "Enter string1 (empty string to exit)" << endl;
+            getline(cin, firstString);
+            if(firstString == "")
+            {
+                cout <<"You entered an empty string->exiting." << endl;
+                break;
+            }
+            cout << "Enter string2: " << endl;
+            getline(cin, secondString);
+            if(firstString < secondString)
+            {
+                cout << "First string" << firstString << " is lexicographically less than second string " << secondString << endl;
+            }
+            elseif (firstString > secondString)
+            {
+                cout << "First string" << firstString << " is lexicographically greater than second string " << secondString << endl;
+            }
+            else
+            {
+                cout << "Strings are equal." << endl;
+            }
+        }
+    ```
+## Convert C++ strings to C strings
+// Example18:
+* The string class has a constructor that takes in a `char*`
+* The string class has method called `string::c_str()`
+```
+    string someString("Vijay Bharathi");
+    char * oldSchoolString = new char [someString.length()+1];
+    strcpy (oldSchoolString, someString.c_str());
+
+    string recreatedString(oldSchoolString);
+
+    cout << "Modern C++ string " << someString << endl
+         << " Converted to C-style (char *) string " << oldSchoolString << endl
+         << "Re converted to Modern C++ string " << recreatedString << endl;
+    // oldSchoolString now contains c-string copy of str.
+    delete[] oldSchoolString;
+```
+## References
+* References are pointers in disguise.
+* It is C++ feature that dramatically <span style="color:red">Simplify using pointers</span>.
+* You no need to dereference as like pointer and no need to ensure it is NULL pointer.
+* No need to malloc/free OR new/delete them
+* References can never be NULL
+```
+    int x = 5;
+    int& y = x;
+```
+* An `INT REFERENCE` or `A REFERENCE TO AN INT` <span style="color:red">declared to be of type</span> `int&`.
+* When you change `y`, you will change `x`.
+* References are in fact pointers - C++ just makes their syntax far easier to use.
+* Why References?
+  * No memory allocation
+  * No memory leaks
+  * A reference can never be a NULL
+* Rule1#: A reference must be always be initialised
+Wrong way of initialisation
+~~int& x;~~
+~~x = y;~~
+* Rule2#: Reference reassignments dont do quite what you would expect them to
+* Rule3#: Multiple references to the same value can exist - if one is modified, all get modified.
+* Rule4#: References can never be NULL
+* Rule5#: References can exists to any type (Including pointers)
+* Rule6#: C++ standard 8.3.2/4:
+```
+    There shall be no references to references, no arrays of references, and no pointers to references.
+```
+* References are great for <span style="color:red">PASSING VALUES INTO FUNCTIONS</span>.
+* However references are sometimes <span style="color:red">TRICKY FOR TAKING VALUES OUT OF FUNCTIONS</span>.
+
+## C++ standard (section 8.3.2) says References can't be NULL
+* A reference shall be initiated to refer to a valid object or function.
+* Note: In particular, a NULL reference cannot exist in a well-defined program, because the only way to create such a refences would be to bine it to the "Object" obtained by dereferencing a NULL pointer, which causes undefined behaviour.
+```
+    // Create a pointer to an int, initialise to NULL
+    int * x = NULL;
+    // Create a reference to that variable: call it reference #1
+    int& y = *x;
+    // try printing the value - an error will result
+    // from dereferencing NULL pointer
+    cout << y << endl;
+```
+* But actually you can end up with NULL address which compiler will not catch this, but get an runtime error. Segmentation fault when you reference to NULL variable.
+* Rule5#: References can exists to any type (Including pointers)
+```
+    // Create a pointer to an int
+    int *x = new int(5);
+    // Create a reference to that variable: call it reference #1
+    int* &y = x;
+    cout << "Contents of the pointer x = " << *x
+         << "and contents of the reference pointer y = " << *y << endl;
+    delete x;
+    // dont delete y
+    // because that will lead to the same memory deallocated twice!
+```
+* Rule6#: No references to references or Arrays of references
+```
+    // create an integer variable
+    int x = 5;
+    // create a reference to that variable: call it reference #1
+    int & y = x;
+    // Try to create a reference to the reference - compiler won't allow it
+    int && z = y; // wrong code
+```
+* Be very careful returning a reference to a pointer from a function
+* This could lead to memory leak
+```
+    int& badFunctionReturnsReferenceToPointer()
+    {
+        //the new is here - but where will the delete be?
+        int* x = new int(10);
+        return *x;
+    }
+    int main()
+    {
+        //create an integer variable
+        int x = badFunctionReturnsReferenceToPointer();
+        cout << x << endl;
+        // Now no way to delete the pointer - certain memory leak!!
+    }
+```
+* In this `badFunctionReturnsReferenceToPointer()` it dereferences `x` and returns the reference of it.
+* In `main` we call this function and assing this returned reference to `x`. This is normal integer variable but we have allocated memory on heap which is no way to delete the memory which we intialised, which leads to memory leak.
+* This `badFunctionReturnsReferenceToPointer()` if called many times and each time we allocate memory which could not be deleted and lead to run out of memory for sure.
+* Rule6#: Never return a <span style="color:red">Reference to a stack variable </span>from a function.
+* There are 2 memory where C functions allow you to store:
+  * Stack memory - variable intialised on int, float goes on stack memory.
+                 - Once the function intialised and finished execution all the variables in that functions is cleared up.
+                 - It basically is no longer valid.
+                 - If function returns reference to a variable where the variable is no longer valid and its memory location is no longer valid.
+```
+    int& badFunctionReturnsReferenceToStackVariable()
+    {
+        //the variable x is on stack of this function
+        int x(10);
+        return x;
+        // NO! x will cease to exist when the function returns!
+    }
+    int main()
+    {
+        //create an integer variable
+        int x = badFunctionReturnsReferenceToStackVariable();
+        cout << x << endl;
+        // x will be invalid memory by this point!
+        // it will print out some garbage value, as we have lost the information which was held in the stack of 
+        // function
+    }
+```
+* compile code with option `-Wall` to get more details of compilation. e.g `g++ -Wall Example29.cpp`
+  * Heap memory
+## The C++ const keyword
+* A variable can be marked `const` and then <span style="color:red">any attempt to change its value</span>  will throw an error.
+* <span style="color:red">The member function of an object</span> can be marked `const` which means that it will not change any member variable of that object.
+* Example30: Define and use `const` varaibles
+* Creation and initialisation must be in same sentence
+* you cant modify the variables with const as compiler throws error.
+* Example31: Understand that `const` only guarantees bitwise constness
+```
+    // create non-const int variable x
+    int x = 5;
+    // create const reference to x
+    const int & y = x;
+    cout << "Initial value of x = " << x << "Initial value of y" << y <<endl;
+    // modify x
+    x = x + 10;
+    cout << "Final value of x = " << x << "Final value of y" << y <<endl;
+
+    Output: 
+    Initial value of x = 5 Initial value of y = 5
+    Final value of x = 15 Final value of y = 15
+```
+* Yes it has! despite the const nature of the reference!
+* The reference Y is const, not the variable x, so that bits of x can be changed.
+* Even a `const int&` can be changed - simply by modifying the variable it points to
+* This was because our `const int&` did not point to a `const int`
+* C++ compiler will only protect the bitwise constness of the address of the `const int&`
+* compiler only knows the value could not be modified through y as `const int &y`
+* `y = 10;` if we try to modify like this, it throws error saying read-only variable is not assignable y  =10; it is protected in c++ compiler as per our semantics.
+
+* Example32: Understand difference between `const char *` and `char * const`
+* 
+
 <li></li>
 <span style="color:red">  void* </span>
