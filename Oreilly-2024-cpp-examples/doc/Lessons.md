@@ -881,5 +881,27 @@ Wrong way of initialisation
         const double ComplexNumber::PI = 3.1415;
         ```
     * Approach#2 works on ALL compilers.
+
+## The friend keyword
+* Example 6: Understand the access modifiers: Private, Public and Protected
+* Member functions and member variables can be marked as `PUBLIC` (if usable outside the class) or `PRIVATE` (internal to the class).
+* `Protected` is similar, but related to inheritance - more later.
+* Section marked `private` that is for member functions and data accessible only inside the class.
+* If code outside a class tries to access this, a compile error will result.
+* <span style="color:red">But all objects of a class can access each others private parts.</span>
+* The access modifiers exist to force good design, not for "SECURITY".
+* It involves the `friend` keyword to use. The idea is pretty simply: Any class can mark another class, or even a standalone function as a `friend`.
+* Then friends can access any private parts of the class, which declared to be their `friend`s.
+* The `friend` can then access the private member data of that class.
+* Thers is no compulsiion that `friend`ship be mutual and it rarely is.
+* <span style="color:red">Jokes about the</span> `friend` <span style="color:red">keyword are universal.</span>
+  * There is no compulsion that `friend`ship be mutual, and it rarely is.
+  * A `friend` can touch your private parts.
+  * Like in real life, `friends` are usually trouble than they are worth.
+* Using `friend` is quite controversial - it breaks encapsulation, and other languages don't include such an idea, but
+* it also enforces class to be open for modification, thats why it is controversial and not supported in C# or java.
+* There are specific situations where `friend` is a life-saver (operator overloading of certain operators, for instance).
+* More on this when we get to operator overloading.
+* Example 42: Declare a friend function, and use it.
 <li></li>
 <span style="color:red">  void* </span>
