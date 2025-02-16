@@ -850,6 +850,36 @@ Wrong way of initialisation
   * If you try to define them in the header, they will be defined in every module that includes that header, and you'll get errors during linking as it finds all of the duplicate definitions.
   * Reasons for backward compatibility.
   * The C++ compilation model stems from that of C, in which you import declarations into a source file by including (header) files. In this way, the compiler sees exactly one big source file, containing all the included files, and all the files included from those files, recursively. 
-  * Example 41: Understand how to properly initialise a const static member variable.
+* Example 41: Understand how to properly initialise a const static member variable.
+* A variable can be marked `const`, and then attempt to change its value will throw an error.
+* <span style="color:red">A member function of an object</span> can be marked `const`, which means that it will not change any member variable of that object.
+  * Approach#1: Define inside, also dummy-define outside
+    * The definition and declaration are both inside the class.
+    * Inside the class (.H file)
+        ```
+        class ComplexNumber
+        {
+            const static double e = 2.71828;
+        }
+        ```
+    * Outside the class (.CPP file)
+    * A dummy declaration outside the class using scope resolution operator.
+        ```
+        const double ComplexNumber::e;
+        ```
+    * Approach#1 works on all NEW compilers.
+  * Approach#2: Declare inside, define outside (exactly like non-const)
+    * Inside the class (.H file)
+        ```
+        class ComplexNumber
+        {
+            const static double PI;
+        }
+        ```
+    * Outside the class (.CPP file)
+        ```
+        const double ComplexNumber::PI = 3.1415;
+        ```
+    * Approach#2 works on ALL compilers.
 <li></li>
 <span style="color:red">  void* </span>
