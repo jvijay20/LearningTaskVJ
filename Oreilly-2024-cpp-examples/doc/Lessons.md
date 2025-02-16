@@ -670,6 +670,186 @@ Wrong way of initialisation
 ```
 * const_cast is the first C++ cast we are seeing - It helps get rid of constness if for some reason we need to
 
-* Example 37:
+* Example 37: Passing function parameters as const references rather than by-value
+* Passing by const reference is the best practice if you want to prevent that function inadvertently modifying the value and use of a reference is also useful to prevent unnecessary copying of the object.
+* When an object is <span style="color:red">PASSED BY VALUE</span> to a function as a function argument, a <span style="color:red">TEMPORARY VARIABLE</span> is created.
+* This temporary variable is constructed (using the COPY CONSTRUCTOR) and then must be destructed too (Via THE DESTRUCTOR).
+* So basically copy constructor creates an entirely new object and used inside the function.
+* After the function exits, temporary object is destructed by Destructor
+* <span style="color:red">All of these constructor and destructor calls add up</span> (Remember they will cascade into the member variables of that object)
+* <span style="color:red">In a performance-sensitive application</span> this will become unacceptable
+* <span style="color:red">SLICING:</span> There is another reason to prefer passing function arguments as const references rather than by value called <span style="color:red">SLICING</span>. Slicing has to do with inheritance, so we will get to it later.
+* <span style="color:red">Instead, simply pass the function arguments as CONST REFERENCES.</span> No Constructor or Destructor calls will result.
+* Why const is been used? This prevents inadvertent changing of object, for e.g if you pass a student object as reference, const will ensure student object is not changed during the function exection. 
+* Pass by reference has no performance overhead with constructor and destructor when function has exited.
+* <span style="color:red">Don't forget the CONST!</span>: Else the function might mistakenly modify something it should not.
+
+## Static in C is a storage class
+* There are 4 storage class in C which are automatic, register, external and static
+* Lets recap only static in C
+
+| Aspects of Static storage class | Description |
+|:--- |:--- |
+| Where the variable would be stored | Memory |
+| default value for the variable | 0 |
+| Scope of the variable | Local to the block in which it is defined |
+| the life of the variable | value of the variable persists between different function calls|
+
+* What does mean the life of the variable between different function calls?
+
+```
+    main()
+    {
+        power();
+        power();
+        power();
+    }
+    power()
+    {
+        int i = 2;
+        printf("%d\n", i);
+        i = i * 2;
+    }
+    Output:
+    2
+    2
+    2
+```
+```
+    main()
+    {
+        power();
+        power();
+        power();
+    }
+    power()
+    {
+        static int i = 2;
+        printf("%d\n", i);
+        i = i * 2;
+    }
+    Output:
+    2
+    4
+    8
+```
+* when static variable is initialised, it retains the last value stored when function exits and initialised with last value when function exits (even though the declaration of i seems to be happening every time but static int ensures that it remembers the value that has been assigned in the past.)
+* So first time when `power()` called it initialised to 2, second time when `power()` called it carries 4 and third time it outputs 8.
+* Static variables don't disappear when the function is no longer active. Their values persists. (Persistent variable - they hold the value and not reinitialised)
+* Static in C++
+* We have discussed how classes are user-defined types that include both data and functions
+* The data items are called <span style="color:red">MEMBER VARIABLES.</span>
+* The functions are called <span style="color:red">MEMBER FUNCTIONS OR METHODS.</span>
+* Variables of a class are called <span style="color:red">OBJECTS.</span>
+* Each object has its <span style="color:red">own copy of the member variables</span> and <span style="color:red">the member functions</span> act on those member variables.
+* Actually when we said above point <span style="color:red"> WE LIED A LITTLE BIT</span>.
+* Member variables or member functions marked `static` are shared by all objects of a class.
+* i.e member variable marked `static` does not the seperate copy in each object that's instantiated in a class. Instead, there is just one copy per class, and all the instances of that class however many millions you create, share the same copy associated with the class. Its not replicated across all objects, these are special member variables marked `static`.
+* `static` member variables must be defined outside the class body (even if `const`).
+* Example 38: Add a static member variable to a class, and use it outside the class.
+* This involves 4 steps:
+  1) <span style="color:red">Declare the variable</span> inside the class
+  2) <span style="color:red">Define the variable</span> outside the class
+  3) <span style="color:red">Use the variable</span> inside the class
+  4) <span style="color:red">Use the variable</span> outside the class
+1) Declare the variable inside the class
+   ```
+        class ComplexNumber
+        {
+            private:
+                float realPart;
+                float complexPart;
+            public:
+                static int numObjectsCreated;
+        }
+   ```
+   * This is very simple, just tag the variable with the `static` keyword.
+   * Aside: I have marked this variable as public, only because we have yet to talk about static methods - member data should be private. 
+2) Define the variable outside the class
+   * This is tricky, somewhere outside the class, you need a line defining the variable, like this.
+  ```
+        int ComplexNumber::numObjectsCreated = 0; // define the static variable
+  ```
+   * Notice how we use the <span style="color:red">scope resolution operator</span>, prefixed by the class name.
+   * This is the standard way to refer to any member or method of a class outside that class.
+   * Somewhere outside the class? Usually C++ classes are split into .cpp (source code) and .h (header files.)
+   * The class would be declared in the .h file and this line would be in the .cpp file.
+   * If you forget to include the definition, the complier will throw a linker error! in some older compilers, the error will pop up at runtime.
+3) Use the variable inside the class.
+   ```
+        ComplexNumber(): realPart(0.0), complexPart(0.0)
+        {
+            // increment the static variable keeping track of objects created
+            numObjectsCreated++;
+            cout << "No arg-constructor called" << endl;
+        }
+        ComplexNumber(double c, double r): realPart(r), complexPart(c)
+        {
+            // increment the static variable keeping track of objects created
+            numObjectsCreated++;
+            cout << "Inside the 2 arg-constructor called" << endl;
+        }
+        ComplexNumber(const ComplexNumber& rhs): realPart(rhs.realPart), complexPart(rhs.complexPart)
+        {
+            // increment the static variable keeping track of objects created
+            numObjectsCreated++;
+            cout << "Inside the copy-constructor called" << endl;
+        }
+   ```
+4) Use the variable outside the class
+   * If the member variable is <span style="color:red">PRIVATE</span>, then of course you can't use it outside the class at all.
+   * If the member variable is <span style="color:red">PUBLIC</span>, then you need to use the scope resolution operator, preceded by the class name. `int ComplexNumber::numObjectsCreated = 0; // define the static variable`.
+   * This is the standard way to refer to any member or method of a class outside that class.
+   * Note that we use the class name to refer to this, not a specific object variable.
+   * The variable is shared across all objects of a class, referring to it by class name makes it clear that its a class variable and not an object variable.
+   * `cout << numObjectsCreated << endl;` each time when you creat an object, you can check number of objects created getting incremented through this static varaible.
+* Example 39: Add a static member function to a class, and use it outside the class
+* This is very similar to using a static member variable, but simplifier.
+* Its not mandatory to define the function outside the class.
+  ```
+        class ComplexNumber
+        {
+            private:
+                float realPart;
+                float complexPart;
+                static int numObjectsCreated;
+            public:
+                static int getNumObjectsCreated()
+                {
+                    cout << "Inside the static method" << endl;
+                    return numObjectsCreated;
+                }
+        }
+   ```
+* Note just remember the <span style="color:red">static methods can only access static member variables</span>, not object-specific member variables.
+* Static member variables are shared across all objects, regular exists with one copy of member variables per object instantiated.
+* A static member function, which object's member variable would it return, a static member function can be called on the class itself. It does not know the existence of any of the objects of the class, that is why it can't access any object-specific member variables. It can only access static class member variables only.
+```
+        cout << "Number of complexNumber objects created so far:"
+                << ComplexNumber::getNumObjectsCreated() << endl;
+        cout <<"Create one object " << endl;
+        ComplexNumber c1(1,2);
+```
+* Its not mandatory to define the function outside the class.
+* You could always choose to declare in the .H file, and define in the .CPP file if you so choose though.
+* Example 40: Understand what will happen if you forget to define a static member variable.
+* <span style="color:red">what does compiler will do? and what error we will get?</span>
+* If you forgot to include the definition, the compiler will throw a linker error! in some older compliers, the error will pop up at runtime.
+* Lets intentionally "forget" (comment out this line initialising numObjectCreated static variable) and see what happens.
+```
+    Undefined symbols for architecture x86_64:
+    "ComplexNumber::numObjectCreated", referenced from: ...
+    ...
+        ComplexNumber::ComplexNumber(double, double) in .cpp
+    ...
+    clang: error: linker command failed with exit code 1
+```
+* Why do we need to do this strange definition outside the class?
+* Its a bit arcane, but if you'd really like to know - here's why :-)
+* Note the documentation:
+  * If you try to define them in the header, they will be defined in every module that includes that header, and you'll get errors during linking as it finds all of the duplicate definitions.
+  * Reasons for backward compatibility.
+  * The C++ compilation model stems from that of C, in which you import declarations into a source file by including (header) files. In this way, the compiler sees exactly one big source file, containing all the included files, and all the files included from those files, recursively. 
+  * Example 41: Understand how to properly initialise a const static member variable.
 <li></li>
 <span style="color:red">  void* </span>
